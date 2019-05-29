@@ -6,9 +6,10 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.TemporalAdjusters.*
 import kotlin.streams.toList
 
+val ONE_MONTH: Period = Period.ofMonths(1)
+val DATE_PATTERN: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM")
+
 class IntervalPrinter {
-  private val ONE_MONTH = Period.ofMonths(1)
-  val pattern = DateTimeFormatter.ofPattern("dd/MM")
 
   fun print(vararg periods: Interval): String {
     val minDate = periods.minBy { it.from }!!.from
@@ -29,14 +30,12 @@ class IntervalPrinter {
     val indent = " ".repeat(maxGroupLength)
 
     val years = (begin.year..end.year)
-      .joinToString("|", "|", "|") { y ->
-        "    $y    "
-      }.prependIndent(indent)
+      .joinToString("|", "|", "|") { y -> "    $y    " }.prependIndent(indent)
 
     val years2 = (begin.year..end.year)
       .joinToString("|", "|", "|") { "=".repeat(12) }.prependIndent(indent)
 
-    val allMonths = begin.datesUntil(end.plusMonths(1), ONE_MONTH).toList()
+    val allMonths = begin.datesUntil(end.plus(ONE_MONTH), ONE_MONTH).toList()
 
     // gives the '=' position
     val toIndex: (LocalDate) -> Int = { d ->
@@ -50,15 +49,14 @@ class IntervalPrinter {
     val allDates = periods.flatMap { listOf(it.from, it.to) }.toSortedSet()
     allDates.forEach { d ->
       val index = toIndex(d)
-      dates = dates.replaceRange(index - 2, index + 3, d.format(pattern))
+      dates = dates.replaceRange(index - 2, index + 3, d.format(DATE_PATTERN))
     }
     dates = dates.trimEnd()
 
     val groupedPeriods = periods.groupBy { it.group }
-    val groups = groupedPeriods.map {
-      val group = it.key.padStart(maxGroupLength)
-      var str = (0..totalNbYears).joinToString("|", "$group|", "|") { " ".repeat(12) }
-      val intervals = it.value
+    val groups = groupedPeriods.map { (group, intervals) ->
+      val groupName = group.padStart(maxGroupLength)
+      var str = (0..totalNbYears).joinToString("|", "$groupName|", "|") { " ".repeat(12) }
       intervals.forEach { i ->
         val b = toIndex(i.from)
         val e = toIndex(i.to)
