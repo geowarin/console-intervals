@@ -52,7 +52,7 @@ ptf|[=======================]|
   }
 
   @Test
-  fun `one period one group`() {
+  fun `one group one period `() {
 
     val result = IntervalPrinter().print(
       Interval("ptf", date(DECEMBER, 2010), date(JUNE, 2011))
@@ -62,6 +62,21 @@ ptf|[=======================]|
    |============|============|
    |         31/12  30/06    |
 ptf|           [======]      |
+    """.trimIndent(), result)
+  }
+
+  @Test
+  fun `one group two periods`() {
+
+    val result = IntervalPrinter().print(
+      Interval("ptf", date(MARCH, 2010), date(JANUARY, 2011)),
+      Interval("ptf", date(MARCH, 2012), date(AUGUST, 2012))
+    )
+    Assertions.assertEquals("""
+   |    2010    |    2011    |    2012    |
+   |============|============|============|
+   |31/03      31/01         |31/0331/08  |
+ptf|  [==========]           |  [====]    |
     """.trimIndent(), result)
   }
 

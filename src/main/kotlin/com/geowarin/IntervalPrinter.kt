@@ -62,10 +62,7 @@ class IntervalPrinter {
       intervals.forEach { i ->
         val b = toIndex(i.from)
         val e = toIndex(i.to)
-//        val period = i.from.until(i.to)
-//        val nbYears = i.to.year - i.from.year
         val len = e - b - 1
-        println("b = ${b}, e = $e, len=$len")
         str = str.replaceRange(b, e + 1, "[" + "=".repeat(len) + "]")
       }
 
